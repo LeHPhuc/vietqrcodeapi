@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: laravel-app
+    env: docker
+    plan: free
+    autoDeploy: true
+    healthCheckPath: /
+    preDeployCommand: php artisan migrate --force
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: APP_KEY
+        generateValue: true   # Render tự sinh nếu trống
+      - key: APP_URL
+        value: https://<to-be-filled-after-deploy>  # bạn sẽ sửa lại sau khi có URL
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DATABASE_URL
+        sync: false  # sẽ dán thủ công trong dashboard
+      - key: SESSION_DRIVER
+        value: cookie
+      - key: SESSION_SECURE_COOKIE
+        value: true
+    disks:
+      - name: storage
+        mountPath: /var/www/html/storage
+        sizeGB: 1
