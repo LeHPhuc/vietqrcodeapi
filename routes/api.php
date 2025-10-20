@@ -21,3 +21,14 @@ Route::get('/__debug_db', function () {
         'migrations_last10'  => DB::table('migrations')->orderBy('id','desc')->limit(10)->get(),
     ]);
 });
+
+// Chạy migrate ở db render
+use Illuminate\Support\Facades\Artisan;
+Route::get('/__run_migrate_once', function () {
+    Artisan::call('config:clear');
+    Artisan::call('migrate', ['--force' => true]);
+    return response()->json([
+        'ok' => true,
+        'output' => Artisan::output(),
+    ]);
+});
