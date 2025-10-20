@@ -36,20 +36,23 @@ Route::get('/__run_migrate_once', function () {
 
 // Factory user on render
 Route::get('/seed-users', function () {
-    // CHỐNG lộ route trên production
-    if (app()->environment('production')) {
-        abort(403, 'Not allowed in production');
+    try {
+        // Chạy đúng DatabaseSeeder của bạn (mặc định tạo 10 user)
+        Artisan::call('db:seed', [
+            '--class' => \Database\Seeders\DatabaseSeeder::class,
+            '--force' => true,
+        ]);
+
+        return response()->json([
+            'status' => 'ok',
+            'message' => 'Seeded using DatabaseSeeder (default 10 users).',
+            'artisan_output' => Artisan::output(),
+        ]);
+    } catch (\Throwable $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage(),
+        ], 500);
     }
-
-    $count = (int) request('count', 10);   // ?count=20 để đổi số lượng
-    $count = max(1, min($count, 1000));    // giới hạn an toàn
-
-    // Tạo user theo factory
-    User::factory($count)->create();
-
-    return response()->json([
-        'status' => 'ok',
-        'created' => $count
-    ]);
 });
 
