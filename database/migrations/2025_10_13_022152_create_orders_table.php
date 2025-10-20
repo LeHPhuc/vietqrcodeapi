@@ -1,32 +1,35 @@
-<?php
+    <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+    use Illuminate\Database\Migrations\Migration;
+    use Illuminate\Database\Schema\Blueprint;
+    use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
+    return new class extends Migration
     {
-       Schema::create('orders', function (Blueprint $table) {
-           $table->id();
-           $table->char('order_code', 8)->collation('ascii_bin')->unique();
-           $table->foreignId('store_id')->constrained()->cascadeOnDelete();
-           $table->string('order_status')->default('pending')->index();
-           $table->decimal('total_amount', 12, 2)->unsigned()->default(0);
-           $table->string('note')->nullable();
-           $table->timestamps();
-       });
-    }
+        /**
+         * Run the migrations.
+         */
+        public function up(): void
+        {
+        Schema::create('orders', function (Blueprint $table) {
+            $table->id();
+            // $table->char('order_code', 8)->collation('ascii_bin')->unique();
+            $table->char('order_code', 8)->unique();
+            // $table->foreignId('store_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('store_id')->constrained('stores')->cascadeOnDelete();
+            $table->string('order_status')->default('pending')->index();
+            // $table->decimal('total_amount', 12, 2)->unsigned()->default(0);
+            $table->decimal('total_amount', 12, 2)->default(0);
+            $table->string('note')->nullable();
+            $table->timestamps();
+        });
+        }
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::dropIfExists('orders');
-    }
-};
+        /**
+         * Reverse the migrations.
+         */
+        public function down(): void
+        {
+            Schema::dropIfExists('orders');
+        }
+    };

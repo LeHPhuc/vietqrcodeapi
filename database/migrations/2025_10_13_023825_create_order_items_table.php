@@ -13,12 +13,16 @@ return new class extends Migration
     {
         Schema::create('order_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('order_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('product_id')->constrained()->restrictOnDelete();
+            $table->foreignId('order_id')->constrained('orders')->cascadeOnDelete();
+            $table->foreignId('product_id')->constrained('products')->restrictOnDelete();
             $table->string('product_name'); 
-            $table->decimal('unit_price', 12, 2)->unsigned();
-            $table->unsignedInteger('quantity');
-            $table->decimal('line_total', 12, 2)->unsigned();
+            // $table->decimal('unit_price', 12, 2)->unsigned();
+            // $table->unsignedInteger('quantity');
+            // $table->decimal('line_total', 12, 2)->unsigned();
+            $table->decimal('unit_price', 12, 2)->default(0);
+            $table->integer('quantity')->default(1);
+            $table->decimal('line_total', 12, 2)->default(0);
+
             $table->timestamps();
         });
     }
