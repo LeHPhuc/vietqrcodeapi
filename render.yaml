@@ -9,7 +9,7 @@ services:
       php artisan config:clear
       php artisan cache:clear
       php artisan key:generate --force || true
-      php artisan migrate --force || true
+      php artisan migrate --force -n
       php artisan db:seed --force || true
     envVars:
       - key: APP_ENV
