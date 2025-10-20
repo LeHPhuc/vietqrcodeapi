@@ -1,37 +1,39 @@
-# Dockerfile
 FROM php:8.2-apache
 
-# 1) Packages & PHP extensions
 RUN apt-get update && apt-get install -y \
     git unzip libpq-dev libonig-dev libzip-dev \
  && docker-php-ext-install pdo pdo_pgsql \
  && a2enmod rewrite headers
 
-# 2) Làm việc trong /var/www/html
 WORKDIR /var/www/html
 
-# 3) Copy trước composer files để tận dụng layer cache
+# 1) Copy composer files để cache layer
 COPY composer.json composer.lock ./
 
-# 4) Cài Composer trực tiếp (tránh mirror docker composer:2 bị 502)
+# 2) Cài Composer (trực tiếp, né mirror)
 RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
  && php composer-setup.php --install-dir=/usr/bin --filename=composer \
  && php -r "unlink('composer-setup.php');"
 
-# 5) Cài deps (tối ưu I/O)
 ENV COMPOSER_MEMORY_LIMIT=-1 COMPOSER_ALLOW_SUPERUSER=1
-RUN composer install --no-dev --prefer-dist --no-interaction --no-progress -o
 
-# 6) Copy phần còn lại của source
+# 3) Cài dependencies **không chạy scripts** (chưa có artisan)
+RUN composer install --no-dev --prefer-dist --no-interaction --no-progress --no-scripts -o
+
+# 4) Copy phần còn lại của source (lúc này mới có file artisan)
 COPY . .
 
-# 7) Quyền & symlink storage (kèm bootstrap/cache)
+# 5) Chạy lại autoload + package:discover
+RUN composer dump-autoload -o \
+ && php artisan package:discover --ansi || true
+
+# 6) Quyền + symlink
 RUN chown -R www-data:www-data /var/www/html \
  && mkdir -p storage bootstrap/cache \
  && chmod -R 775 storage bootstrap/cache \
  && php artisan storage:link || true
 
-# 8) Apache vhost tại 8080
+# 7) Apache vhost 8080
 RUN printf "%s\n" \
  "<VirtualHost *:8080>\nServerName localhost\nDocumentRoot /var/www/html/public\n\
  <Directory /var/www/html/public>\nAllowOverride All\nRequire all granted\n</Directory>\n\
@@ -41,7 +43,7 @@ RUN printf "%s\n" \
  && a2ensite laravel.conf \
  && sed -i 's/Listen 80/Listen 8080/' /etc/apache2/ports.conf
 
-# 9) Clear caches (không fail nếu thiếu env)
+# 8) Clear caches (an toàn)
 RUN php artisan config:clear || true \
  && php artisan route:clear || true \
  && php artisan view:clear || true
