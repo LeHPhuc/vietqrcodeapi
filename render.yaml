@@ -5,24 +5,25 @@ services:
     plan: free
     autoDeploy: true
     healthCheckPath: /
-    preDeployCommand: php artisan migrate --force
+    preDeployCommand: |
+      php artisan key:generate --force || true
+      php artisan migrate --force
     envVars:
       - key: APP_ENV
         value: production
       - key: APP_DEBUG
         value: false
-      - key: APP_KEY
-        generateValue: true   # Render tự sinh nếu trống
       - key: APP_URL
-        value: https://<to-be-filled-after-deploy>  # bạn sẽ sửa lại sau khi có URL
-      - key: DB_CONNECTION
-        value: pgsql
-      - key: DATABASE_URL
-        sync: false  # sẽ dán thủ công trong dashboard
+        value: https://vietqrcodeapi.onrender.com
       - key: SESSION_DRIVER
         value: cookie
       - key: SESSION_SECURE_COOKIE
         value: true
+      # Laravel sẽ tự parse DATABASE_URL -> pgsql
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DATABASE_URL
+        sync: false   # dán chuỗi Postgres trong Dashboard Render
     disks:
       - name: storage
         mountPath: /var/www/html/storage
