@@ -1,49 +1,62 @@
+# ---------- Base ----------
 FROM php:8.2-apache
 
+# System packages & PHP extensions (PostgreSQL)
 RUN apt-get update && apt-get install -y \
     git unzip libpq-dev libonig-dev libzip-dev \
  && docker-php-ext-install pdo pdo_pgsql \
  && a2enmod rewrite headers
 
+# ---------- App dir ----------
 WORKDIR /var/www/html
 
-# 1) Copy composer files để cache layer
+# Copy composer files first to leverage build cache
 COPY composer.json composer.lock ./
 
-# 2) Cài Composer (trực tiếp, né mirror)
+# Install Composer (avoid docker mirror issues)
 RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
  && php composer-setup.php --install-dir=/usr/bin --filename=composer \
  && php -r "unlink('composer-setup.php');"
 
 ENV COMPOSER_MEMORY_LIMIT=-1 COMPOSER_ALLOW_SUPERUSER=1
 
-# 3) Cài dependencies **không chạy scripts** (chưa có artisan)
+# Install PHP deps WITHOUT scripts (artisan not copied yet)
 RUN composer install --no-dev --prefer-dist --no-interaction --no-progress --no-scripts -o
 
-# 4) Copy phần còn lại của source (lúc này mới có file artisan)
+# Now copy the rest of source (adds artisan, app code, public/, etc.)
 COPY . .
 
-# 5) Chạy lại autoload + package:discover
+# Generate autoload & discover packages (now artisan exists)
 RUN composer dump-autoload -o \
  && php artisan package:discover --ansi || true
 
-# 6) Quyền + symlink
-RUN chown -R www-data:www-data /var/www/html \
- && mkdir -p storage bootstrap/cache \
+# Storage & permissions
+RUN mkdir -p storage bootstrap/cache \
+ && chown -R www-data:www-data /var/www/html \
  && chmod -R 775 storage bootstrap/cache \
  && php artisan storage:link || true
 
-# 7) Apache vhost 8080
-RUN printf "%s\n" \
- "<VirtualHost *:8080>\nServerName localhost\nDocumentRoot /var/www/html/public\n\
- <Directory /var/www/html/public>\nAllowOverride All\nRequire all granted\n</Directory>\n\
- ErrorLog /proc/self/fd/2\nCustomLog /proc/self/fd/1 combined\n</VirtualHost>" \
- > /etc/apache2/sites-available/laravel.conf \
- && a2dissite 000-default.conf \
+# ---------- Apache vhost (8080) ----------
+RUN cat > /etc/apache2/sites-available/laravel.conf <<'EOF'
+<VirtualHost *:8080>
+    ServerName localhost
+    DocumentRoot /var/www/html/public
+
+    <Directory /var/www/html/public>
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    ErrorLog /proc/self/fd/2
+    CustomLog /proc/self/fd/1 combined
+</VirtualHost>
+EOF
+
+RUN a2dissite 000-default.conf \
  && a2ensite laravel.conf \
  && sed -i 's/Listen 80/Listen 8080/' /etc/apache2/ports.conf
 
-# 8) Clear caches (an toàn)
+# Clear caches safely (do not fail build if env missing)
 RUN php artisan config:clear || true \
  && php artisan route:clear || true \
  && php artisan view:clear || true
