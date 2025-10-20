@@ -6,8 +6,11 @@ services:
     autoDeploy: true
     healthCheckPath: /
     preDeployCommand: |
+      php artisan config:clear
+      php artisan cache:clear
       php artisan key:generate --force || true
-      php artisan migrate --force
+      php artisan migrate --force || true
+      php artisan db:seed --force || true
     envVars:
       - key: APP_ENV
         value: production
@@ -19,11 +22,10 @@ services:
         value: cookie
       - key: SESSION_SECURE_COOKIE
         value: true
-      # Laravel sẽ tự parse DATABASE_URL -> pgsql
       - key: DB_CONNECTION
         value: pgsql
       - key: DATABASE_URL
-        sync: false   # dán chuỗi Postgres trong Dashboard Render
+        sync: false
     disks:
       - name: storage
         mountPath: /var/www/html/storage
