@@ -1,47 +1,47 @@
-# PHP + Apache
+# Dockerfile
 FROM php:8.2-apache
 
-# 1) Extensions & tools
+# Cài extension cần cho Laravel + Postgres
 RUN apt-get update && apt-get install -y \
-    libpq-dev git unzip curl \
+    git unzip libpq-dev libonig-dev libzip-dev \
  && docker-php-ext-install pdo pdo_pgsql \
- && a2enmod rewrite
+ && a2enmod rewrite headers
 
-# 2) Composer
-RUN curl -sS https://getcomposer.org/installer \
- | php -- --install-dir=/usr/local/bin --filename=composer
-
-# 3) Code
+# Đưa app vào /var/www/html
 WORKDIR /var/www/html
-COPY . .
+COPY . /var/www/html
 
-# 4) Port động của Render + tạo vhost Laravel
-ENV PORT=8080
-EXPOSE 8080
-RUN sed -i "s/Listen 80/Listen ${PORT}/" /etc/apache2/ports.conf
+# Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+RUN composer install --no-dev --prefer-dist --no-interaction --no-progress
 
-# 4a) Tạo vhost riêng cho Laravel (lắng nghe ${PORT})
-RUN printf '<VirtualHost *:%s>\n\
-    ServerName _\n\
-    DocumentRoot /var/www/html/public\n\
-    <Directory /var/www/html/public>\n\
-        Options Indexes FollowSymLinks\n\
-        AllowOverride All\n\
-        Require all granted\n\
-    </Directory>\n\
-    ErrorLog ${APACHE_LOG_DIR}/laravel_error.log\n\
-    CustomLog ${APACHE_LOG_DIR}/laravel_access.log combined\n\
-</VirtualHost>\n' "$PORT" > /etc/apache2/sites-available/laravel.conf \
- && a2dissite 000-default default-ssl || true \
- && a2ensite laravel
-
-# 5) Dependencies & optimize
-RUN composer install --no-dev --optimize-autoloader \
+# Quyền + symlink storage
+RUN chown -R www-data:www-data /var/www/html \
  && php artisan storage:link || true
 
-# 6) Cache (không fail nếu thiếu env)
-RUN php -r "file_exists('.env') || copy('.env.example', '.env');" \
- && php artisan config:cache || true \
- && php artisan route:cache || true
+# Apache vhost: bật rewrite cho public/
+RUN printf "%s\n" \
+    "<VirtualHost *:8080>" \
+    "  ServerName localhost" \
+    "  DocumentRoot /var/www/html/public" \
+    "  <Directory /var/www/html/public>" \
+    "    AllowOverride All" \
+    "    Require all granted" \
+    "  </Directory>" \
+    "  ErrorLog /proc/self/fd/2" \
+    "  CustomLog /proc/self/fd/1 combined" \
+    "</VirtualHost>" \
+    > /etc/apache2/sites-available/laravel.conf \
+ && a2dissite 000-default.conf \
+ && a2ensite laravel.conf
+
+# Apache lắng nghe 8080 (Render expect)
+EXPOSE 8080
+RUN sed -i 's/Listen 80/Listen 8080/' /etc/apache2/ports.conf
+
+# Cache config/route/view để nhanh hơn (không fail build nếu env thiếu)
+RUN php artisan config:clear || true \
+ && php artisan route:clear || true \
+ && php artisan view:clear || true
 
 CMD ["apache2-foreground"]
