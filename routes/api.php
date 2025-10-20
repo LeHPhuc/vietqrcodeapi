@@ -3,10 +3,11 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\UserListController;
 
 Route::post('/orders', [OrderController::class, 'store']);
 Route::get('/orders', [OrderController::class, 'index']);
-
+Route::get('/users/names', [UserListController::class, 'names']);
 
 
 
@@ -32,3 +33,23 @@ Route::get('/__run_migrate_once', function () {
         'output' => Artisan::output(),
     ]);
 });
+
+// Factory user on render
+Route::get('/seed-users', function () {
+    // CHỐNG lộ route trên production
+    if (app()->environment('production')) {
+        abort(403, 'Not allowed in production');
+    }
+
+    $count = (int) request('count', 10);   // ?count=20 để đổi số lượng
+    $count = max(1, min($count, 1000));    // giới hạn an toàn
+
+    // Tạo user theo factory
+    User::factory($count)->create();
+
+    return response()->json([
+        'status' => 'ok',
+        'created' => $count
+    ]);
+});
+
