@@ -15,19 +15,25 @@ RUN curl -sS https://getcomposer.org/installer \
 WORKDIR /var/www/html
 COPY . .
 
-# 4) DocumentRoot -> public
-ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
-# chỉnh đúng 2 vhost đang dùng
-RUN sed -ri -e 's!DocumentRoot .*!DocumentRoot ${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/default-ssl.conf \
- && sed -ri -e 's!<Directory /var/www/>!<Directory ${APACHE_DOCUMENT_ROOT}/>!g' /etc/apache2/apache2.conf
+# 4) Port động của Render + tạo vhost Laravel
+ENV PORT=8080
+EXPOSE 8080
+RUN sed -i "s/Listen 80/Listen ${PORT}/" /etc/apache2/ports.conf
 
-# 4b) Tạo file cấu hình riêng cho Laravel để cấp quyền truy cập & .htaccess
-RUN printf '<Directory "${APACHE_DOCUMENT_ROOT}">\n\
-    Options Indexes FollowSymLinks\n\
-    AllowOverride All\n\
-    Require all granted\n\
-</Directory>\n' > /etc/apache2/conf-available/laravel.conf \
- && a2enconf laravel
+# 4a) Tạo vhost riêng cho Laravel (lắng nghe ${PORT})
+RUN printf '<VirtualHost *:%s>\n\
+    ServerName _\n\
+    DocumentRoot /var/www/html/public\n\
+    <Directory /var/www/html/public>\n\
+        Options Indexes FollowSymLinks\n\
+        AllowOverride All\n\
+        Require all granted\n\
+    </Directory>\n\
+    ErrorLog ${APACHE_LOG_DIR}/laravel_error.log\n\
+    CustomLog ${APACHE_LOG_DIR}/laravel_access.log combined\n\
+</VirtualHost>\n' "$PORT" > /etc/apache2/sites-available/laravel.conf \
+ && a2dissite 000-default default-ssl || true \
+ && a2ensite laravel
 
 # 5) Dependencies & optimize
 RUN composer install --no-dev --optimize-autoloader \
@@ -37,10 +43,5 @@ RUN composer install --no-dev --optimize-autoloader \
 RUN php -r "file_exists('.env') || copy('.env.example', '.env');" \
  && php artisan config:cache || true \
  && php artisan route:cache || true
-
-# 7) Render port động
-ENV PORT=8080
-EXPOSE 8080
-RUN sed -i "s/Listen 80/Listen ${PORT}/" /etc/apache2/ports.conf
 
 CMD ["apache2-foreground"]
