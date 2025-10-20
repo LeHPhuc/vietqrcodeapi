@@ -15,7 +15,26 @@ class OrderController extends Controller
      */
     public function index()
     {
-        //
+    $orders = Order::query()
+        ->withCount('items') 
+        ->orderByDesc('id')
+        ->get(['id','order_code','order_status','store_id','total_amount','created_at']);
+    
+
+     if ($orders->isEmpty()) {
+        return response()->json([
+            'success' => true,
+            'count'   => 0,
+            'data'    => [],
+            'message' => 'Không có đơn hàng.',
+        ], 200);
+    }
+    
+    return response()->json([
+        'success' => true,
+        'count'   => $orders->count(),
+        'data'    => $orders,
+    ]);
     }
 
     /**

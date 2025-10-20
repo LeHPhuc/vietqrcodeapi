@@ -17,7 +17,11 @@ class OrderItemFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'order_code'   => null, 
+            'store_id'     => Store::factory(),
+            'order_status' => $this->faker->randomElement(['pending','paid','shipping','completed','canceled']),
+            'total_amount' => 0,
+            'note'         => $this->faker->optional()->sentence(),
         ];
     }
 }
