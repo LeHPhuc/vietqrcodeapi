@@ -3,13 +3,22 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\OrderController;
-use App\Http\Controllers\UserListController;
+// use App\Http\Controllers\UserListController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\StoreController;
+use App\Http\Controllers\ProductController;
+
+
+
 
 Route::post('/orders', [OrderController::class, 'store']);
 Route::get('/orders', [OrderController::class, 'index']);
-Route::get('/users/names', [UserListController::class, 'names']);
-
-
+Route::get('/users', [UserController::class, 'index']);
+Route::post('/users', [UserController::class, 'store']);
+Route::get('/stores', [StoreController::class, 'index']);
+Route::post('/stores', [StoreController::class, 'store']);
+Route::get('/products', [ProductController::class, 'index']);
+Route::post('/products', [ProductController::class, 'store']);
 
 // kiểm tra deploy ở render
 Route::get('/__debug_db', function () {
