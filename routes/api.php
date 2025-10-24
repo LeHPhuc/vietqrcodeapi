@@ -3,11 +3,10 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\OrderController;
-// use App\Http\Controllers\UserListController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\ProductController;
-
+use App\Http\Controllers\VietQRPaymentController;
 
 
 
@@ -19,6 +18,9 @@ Route::get('/stores', [StoreController::class, 'index']);
 Route::post('/stores', [StoreController::class, 'store']);
 Route::get('/products', [ProductController::class, 'index']);
 Route::post('/products', [ProductController::class, 'store']);
+Route::post('/vqr/payment', [VietQRPaymentController::class, 'createVietqr']);
+
+
 
 // kiểm tra deploy ở render
 Route::get('/__debug_db', function () {

@@ -35,4 +35,12 @@ return [
         ],
     ],
 
+    'vietqr' => [
+        'user'       => env('VIETQR_USER'),
+        'pass'       => env('VIETQR_PASS'),
+        'token_url'  => env('VIETQR_TOKEN_URL'),
+        'qr_url'     => env('VIETQR_GENERATE_QR_URL'),
+        'timeout'    => env('VIETQR_TIMEOUT', 10),
+    ],
+
 ];
