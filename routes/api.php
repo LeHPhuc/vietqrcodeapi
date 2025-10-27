@@ -26,7 +26,7 @@ Route::post('/vqr/payment', [VietQRPaymentController::class, 'createVietqr']);
 Route::get('/payment-orders', [PaymentOrdersController::class, 'index']);
 
 
-Route::post('/vqr/vqr/api/token_generate', [TokenController::class, 'generate']);       
+Route::post('/vqr/api/token_generate', [TokenController::class, 'generate']);       
 Route::post('/vqr/bank/api/transaction-sync', [TransactionSyncController::class, 'handle']); 
 
 
