@@ -7,6 +7,10 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\VietQRPaymentController;
+use App\Http\Controllers\TokenController;
+use App\Http\Controllers\TransactionSyncController;
+use App\Http\Controllers\PaymentOrdersController;
+
 
 
 
@@ -19,6 +23,18 @@ Route::post('/stores', [StoreController::class, 'store']);
 Route::get('/products', [ProductController::class, 'index']);
 Route::post('/products', [ProductController::class, 'store']);
 Route::post('/vqr/payment', [VietQRPaymentController::class, 'createVietqr']);
+Route::get('/payment-orders', [PaymentOrdersController::class, 'index']);
+
+
+Route::post('/vqr/vqr/api/token_generate', [TokenController::class, 'generate']);       
+Route::post('/vqr/bank/api/transaction-sync', [TransactionSyncController::class, 'handle']); 
+
+
+
+
+
+
+
 
 
 

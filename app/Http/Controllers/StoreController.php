@@ -12,7 +12,7 @@ class StoreController extends Controller
      */
     public function index()
     {
-        $stores = Store::select('id', 'name', 'user_id', 'bank_code', 'bank_account_number', 'bank_account_name')
+        $stores = Store::select('id', 'name', 'user_id','bank_code', 'bank_account_number', 'bank_account_name')
             ->orderBy('id', 'desc')
             ->get();
         return response()->json([

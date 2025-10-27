@@ -41,6 +41,8 @@ return [
         'token_url'  => env('VIETQR_TOKEN_URL'),
         'qr_url'     => env('VIETQR_GENERATE_QR_URL'),
         'timeout'    => env('VIETQR_TIMEOUT', 10),
+        'jwt_secret' => env('VIETQR_JWT_SECRET'),
+        'jwt_ttl'    => env('VIETQR_JWT_TTL'),
     ],
 
 ];

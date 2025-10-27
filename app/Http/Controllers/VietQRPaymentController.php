@@ -24,7 +24,6 @@ class VietQRPaymentController extends Controller
         return response()->json(['message' => 'Order not found'], 404);
       }
 
-
       $store = Store::query()
         ->select(['id','bank_code','bank_account_number','bank_account_name'])
         ->find($order->store_id);
