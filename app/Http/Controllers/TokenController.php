@@ -26,8 +26,8 @@ class TokenController extends Controller
 
 
         // xác thực user và pass vừa giải mã với user và pass trong .env
-        $validUser = config('services.vietqr.user');
-        $validPass = config('services.vietqr.pass');
+        $validUser = config('services.vietqr.user_for_vietqr');
+        $validPass = config('services.vietqr.pass_for_vietqr');
         if ($user !== $validUser || $pass !== $validPass) {
             return response()->json(['error' => 'Invalid credentials'], 401);
         }

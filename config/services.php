@@ -38,6 +38,8 @@ return [
     'vietqr' => [
         'user'       => env('VIETQR_USER'),
         'pass'       => env('VIETQR_PASS'),
+        'user_for_vietqr'   => env('USER_FOR_VIETQR'),
+        'pass_for_vietqr'   => env('PASS_FOR_VIETQR'),
         'token_url'  => env('VIETQR_TOKEN_URL'),
         'qr_url'     => env('VIETQR_GENERATE_QR_URL'),
         'timeout'    => env('VIETQR_TIMEOUT', 10),
