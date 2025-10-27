@@ -143,7 +143,7 @@ class TransactionSyncController extends Controller
                         'transaction_id'    => $data['transactionid']   ?? null,
                         'reference_number'  => $data['referencenumber'] ?? null,
                         'transaction_time'  => $data['transactiontime'] ?? null,
-                        'qrlink'          => $data['urlLink']         ?? null,
+                        'qrLink'          => $data['urlLink']         ?? null,
                     ]
                 );
 

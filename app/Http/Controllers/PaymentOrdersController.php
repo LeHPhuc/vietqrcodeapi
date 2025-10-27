@@ -14,7 +14,7 @@ class PaymentOrdersController extends Controller
     {
          $paymentOrders = PaymentOrders::query()
         ->orderByDesc('id')
-        ->get(['id','order_id','bank_account_number','content','amount','transaction_id','reference_number','transaction_time','qrlink']);
+        ->get(['id','order_id','bank_account_number','content','amount','transaction_id','reference_number','transaction_time','qrLink']);
     
 
      if ($paymentOrders->isEmpty()) {

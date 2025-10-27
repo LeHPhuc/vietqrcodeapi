@@ -18,6 +18,6 @@ class PaymentOrders extends Model
         'transaction_id',
         'reference_number',
         'transaction_time',
-        'qrlink',
+        'qrLink',
     ];
 }
