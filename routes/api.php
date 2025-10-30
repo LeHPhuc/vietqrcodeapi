@@ -23,6 +23,7 @@ Route::patch('/stores/{id}', [StoreController::class, 'update']);
 Route::post('/stores', [StoreController::class, 'store']);
 Route::get('/products', [ProductController::class, 'index']);
 Route::post('/products', [ProductController::class, 'store']);
+Route::patch('/products/{id}', [ProductController::class, 'update']);
 Route::post('/vqr/payment', [VietQRPaymentController::class, 'createVietqr']);
 Route::get('/payment-orders', [PaymentOrdersController::class, 'index']);
 
