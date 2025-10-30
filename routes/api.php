@@ -19,6 +19,7 @@ Route::get('/orders', [OrderController::class, 'index']);
 Route::get('/users', [UserController::class, 'index']);
 Route::post('/users', [UserController::class, 'store']);
 Route::get('/stores', [StoreController::class, 'index']);
+Route::patch('/stores/{id}', [StoreController::class, 'update']);
 Route::post('/stores', [StoreController::class, 'store']);
 Route::get('/products', [ProductController::class, 'index']);
 Route::post('/products', [ProductController::class, 'store']);

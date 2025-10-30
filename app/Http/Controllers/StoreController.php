@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Store;
+use App\Http\Requests\UpdateStoreRequest;
 use App\Http\Requests\StoreStoreRequest;
 class StoreController extends Controller
 {
@@ -54,9 +55,16 @@ class StoreController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateStoreRequest $request, string $id)
     {
-        //
+        $store = Store::findOrFail($id);
+        $data = $request->validated();
+        $store->fill($data)->save();
+
+        return response()->json([
+            'status' => 'ok',
+            'data'   => $store->only(['id','name','bank_code','bank_account_number','bank_account_name']),
+        ], 200);
     }
 
     /**
