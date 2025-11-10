@@ -26,5 +26,11 @@ class Store extends Model
     {
         return $this->hasMany(Order::class);
     }
+    public function packages()
+    {
+        return $this->belongsToMany(\App\Models\Package::class, 'package_store')
+            ->withPivot(['starts_at', 'expires_at', 'price_override', 'status'])
+            ->withTimestamps();
+    }
 }
 

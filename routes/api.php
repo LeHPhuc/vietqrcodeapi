@@ -7,31 +7,50 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\VietQRPaymentController;
+use App\Http\Controllers\VietQRPaymentPackageController;
 use App\Http\Controllers\TokenController;
 use App\Http\Controllers\TransactionSyncController;
 use App\Http\Controllers\PaymentOrdersController;
-
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PackageController;
+use App\Http\Controllers\MyStorePackageController;
+use App\Http\Controllers\TransactionSyncPackageController;
 
 
 
 Route::post('/orders', [OrderController::class, 'store']);
 Route::get('/orders', [OrderController::class, 'index']);
+Route::get('/orders/{id}', [OrderController::class, 'show'])->middleware('auth:sanctum');
 Route::get('/users', [UserController::class, 'index']);
 Route::post('/users', [UserController::class, 'store']);
 Route::get('/stores', [StoreController::class, 'index']);
-Route::patch('/stores/{id}', [StoreController::class, 'update']);
+Route::patch('/stores/{id}', [StoreController::class, 'update'])->middleware('auth:sanctum');
 Route::post('/stores', [StoreController::class, 'store']);
 Route::get('/products', [ProductController::class, 'index']);
 Route::post('/products', [ProductController::class, 'store']);
 Route::patch('/products/{id}', [ProductController::class, 'update']);
-Route::post('/vqr/payment', [VietQRPaymentController::class, 'createVietqr']);
+Route::post('/vqr/payment/order', [VietQRPaymentController::class, 'createVietqr']);
+Route::post('/vqr/payment/package', [VietQRPaymentPackageController::class, 'createVietqr']);
 Route::get('/payment-orders', [PaymentOrdersController::class, 'index']);
-
+Route::get('/packages', [PackageController::class, 'index']);
+Route::post('/packages', [PackageController::class, 'store']);
+Route::post('/my-store/add-package', [MyStorePackageController::class, 'attachExisting'])->middleware('auth:sanctum');
+Route::get('/my-store/my-package', [MyStorePackageController::class, 'myPackage'])->middleware('auth:sanctum');
 
 Route::post('/vqr/api/token_generate', [TokenController::class, 'generate']);       
 Route::post('/vqr/bank/api/transaction-sync', [TransactionSyncController::class, 'handle']); 
+Route::post('/vqr/bank/api/package/transaction-sync', [TransactionSyncPackageController::class, 'handle']); 
 
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login',    [AuthController::class, 'login']);
 
+Route::get('/me', function () {
+    return auth()->user()
+        ->load(['store:id,user_id,name,bank_code,bank_account_number,bank_account_name']);
+})->middleware('auth:sanctum');
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
+});
 
 
 

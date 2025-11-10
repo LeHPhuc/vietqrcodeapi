@@ -88,9 +88,14 @@ class OrderController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Order $order)
+    public function show(String $id)
     {
-        //
+        $order = Order::findOrFail($id);
+        $this->authorize('view', $order);
+        return response()->json([
+            'success' => true,
+            'data' => $order->load('items'),
+        ]);
     }
 
     /**

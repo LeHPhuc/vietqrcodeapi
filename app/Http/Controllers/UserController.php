@@ -14,7 +14,8 @@ class UserController extends Controller
      */
     public function index()
     {
-         $users = User::select('id', 'name')
+         $users = User::with(['store:id,user_id,name,bank_code,bank_account_number,bank_account_name'])
+            ->select('id', 'name')
             ->orderBy('id', 'desc')
             ->get();
 

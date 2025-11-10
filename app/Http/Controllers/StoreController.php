@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Store;
 use App\Http\Requests\UpdateStoreRequest;
 use App\Http\Requests\StoreStoreRequest;
+
 class StoreController extends Controller
 {
     /**
@@ -58,6 +59,7 @@ class StoreController extends Controller
     public function update(UpdateStoreRequest $request, string $id)
     {
         $store = Store::findOrFail($id);
+        $this->authorize('update', $store);
         $data = $request->validated();
         $store->fill($data)->save();
 
