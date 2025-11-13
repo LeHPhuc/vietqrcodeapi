@@ -18,7 +18,7 @@ class PaymentPackage
     {
         // validate content và orderId theo yêu cầu của VietQR
         $packageid = (string) ($package['id']);
-        $content = ('SENTO_'.$packageid);
+        $content = ('SENTO_PACKAGE'.$packageid);
         $amount    = (int) ($package['price_override']);
         $bankCode  = 'MB';
         $bankAcc   = '0337367643';

@@ -18,7 +18,7 @@ class PaymentOrchestrator
     {
         // validate content và orderId theo yêu cầu của VietQR
         $orderCode = (string) ($order['order_code']);
-        $content = ('SENTO_'.$orderCode);
+        $content = ('SENTO_ORDER'.$orderCode);
         $orderId   = (string) $order['id'];
         $amount    = (int) ($order['total_amount']);
         $bankCode  = (string) $store['bank_code'];
