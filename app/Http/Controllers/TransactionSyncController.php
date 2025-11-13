@@ -70,7 +70,7 @@ class TransactionSyncController extends Controller
             'sign'            => ['nullable','string'],
         ]);
 
-        // phân tích content để xác định là package hay order
+        // phân tích content để xác định là package hay order sau đó sử lí nghiệp vụ sau thanh toán
         $content = strtoupper($data['content'] ?? '');
 
         if (str_contains($content, 'SENTO_ORDER')) {
